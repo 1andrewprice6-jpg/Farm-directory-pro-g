@@ -1,0 +1,9 @@
+{
+  "name": "Poultry Logistics Pro",
+  "description": "A comprehensive logistics and log management suite for poultry transport, featuring farm indexing, route optimization, load calculation, and fuel logging.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone",
+    "geolocation"
+  ]
+}

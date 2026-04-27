@@ -1,0 +1,68 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700;900&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+@import "tailwindcss";
+@import url('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css');
+@import url('https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css');
+@import url('https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css');
+
+.leaflet-container {
+  font-family: inherit;
+}
+
+.route-tooltip {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.route-tooltip::before {
+  display: none !important;
+}
+
+.leaflet-popup-content-wrapper {
+  background: transparent !important;
+  color: white !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.leaflet-popup-content {
+  margin: 0 !important;
+  width: auto !important;
+}
+
+.leaflet-popup-tip {
+  background: #0A0A0A !important;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.leaflet-popup-close-button {
+  display: none !important;
+}
+
+@theme {
+  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Space Mono", monospace;
+  --color-accent: #10b981; /* emerald-500 */
+}
+
+@layer base {
+  html, body, #root {
+    @apply h-full bg-[#050505] font-sans text-white;
+  }
+}
+
+@layer utilities {
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .text-stroke {
+    -webkit-text-stroke: 1px white;
+  }
+}

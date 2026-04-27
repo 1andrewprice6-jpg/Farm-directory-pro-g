@@ -1,0 +1,109 @@
+{
+  "entities": {
+    "Farm": {
+      "title": "Farm",
+      "description": "Details of a poultry farm",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "address": { "type": "string" },
+        "phone": { "type": "string" },
+        "notes": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "address"]
+    },
+    "Vehicle": {
+      "title": "Vehicle",
+      "description": "Transport vehicle details",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "isActive": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name"]
+    },
+    "FuelLog": {
+      "title": "Fuel Log",
+      "description": "Fuel consumption and reading log",
+      "type": "object",
+      "properties": {
+        "vehicleId": { "type": "string" },
+        "truckNumber": { "type": "string" },
+        "trailerNumber": { "type": "string" },
+        "color": { "type": "string" },
+        "gallonsPumped": { "type": "number" },
+        "odometerReading": { "type": "number" },
+        "meterReading": { "type": "string" },
+        "photoUrl": { "type": "string" },
+        "signatureUrl": { "type": "string" },
+        "notes": { "type": "string" },
+        "userId": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["vehicleId", "userId", "timestamp"]
+    },
+    "CatchLog": {
+      "title": "Catch Log",
+      "description": "Logs for bird catching operations",
+      "type": "object",
+      "properties": {
+        "vehicleId": { "type": "string" },
+        "farmId": { "type": "string" },
+        "birdType": { "type": "string", "enum": ["Rooster", "Hen"] },
+        "totalBirds": { "type": "number" },
+        "loads": {
+          "type": "array",
+          "items": { "type": "object" }
+        },
+        "userId": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      }
+    },
+    "UserSettings": {
+      "title": "User Settings",
+      "description": "Personal preferences and app settings",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "homeAddress": { "type": "string" },
+        "autoEmailLogs": { "type": "boolean" },
+        "darkMode": { "type": "boolean" },
+        "notifications": { "type": "boolean" },
+        "locationTracking": { "type": "boolean" },
+        "textSize": { "type": "string", "enum": ["Small", "Normal", "Large", "Extra Large"] },
+        "colorTheme": { "type": "string" },
+        "cardDensity": { "type": "string", "enum": ["Compact", "Normal", "Comfortable"] },
+        "showPhoneButtons": { "type": "boolean" },
+        "showNavigateButtons": { "type": "boolean" },
+        "enableAnimations": { "type": "boolean" },
+        "compactMode": { "type": "boolean" }
+      }
+    }
+  },
+  "firestore": {
+    "farms": {
+      "schema": "Farm",
+      "description": "Global collection of farms"
+    },
+    "vehicles": {
+      "schema": "Vehicle",
+      "description": "Global collection of vehicles"
+    },
+    "fuelLogs": {
+      "schema": "FuelLog",
+      "description": "Logs for fuel tracking"
+    },
+    "catchLogs": {
+      "schema": "CatchLog",
+      "description": "Logs for poultry catching"
+    },
+    "userSettings": {
+      "schema": "UserSettings",
+      "description": "Individual user preferences"
+    }
+  }
+}
