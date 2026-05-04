@@ -1,0 +1,155 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <!-- Gold gradient for border -->
+    <linearGradient id="goldBorder" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFE082"/>
+      <stop offset="25%" style="stop-color:#FFD700"/>
+      <stop offset="50%" style="stop-color:#FFC107"/>
+      <stop offset="75%" style="stop-color:#FFCA28"/>
+      <stop offset="100%" style="stop-color:#FF8F00"/>
+    </linearGradient>
+    <!-- Pearl/white background gradient -->
+    <radialGradient id="pearlBg" cx="40%" cy="35%" r="70%">
+      <stop offset="0%" style="stop-color:#FFFFFF"/>
+      <stop offset="60%" style="stop-color:#F5F0E8"/>
+      <stop offset="100%" style="stop-color:#EDE0C8"/>
+    </radialGradient>
+    <!-- Gold person gradient -->
+    <linearGradient id="goldPerson" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFE082"/>
+      <stop offset="50%" style="stop-color:#FFB300"/>
+      <stop offset="100%" style="stop-color:#E65100"/>
+    </linearGradient>
+    <!-- Pearl head gradient -->
+    <radialGradient id="pearlHead" cx="35%" cy="30%" r="60%">
+      <stop offset="0%" style="stop-color:#FFFFFF"/>
+      <stop offset="60%" style="stop-color:#F0EAD6"/>
+      <stop offset="100%" style="stop-color:#D4C5A0"/>
+    </radialGradient>
+    <!-- Paper gradient -->
+    <linearGradient id="paperGrad" x1="0%" y1="0%" x2="5%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFFFFF"/>
+      <stop offset="100%" style="stop-color:#F5F5F0"/>
+    </linearGradient>
+    <!-- Pen gradient -->
+    <linearGradient id="penGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFFFFF"/>
+      <stop offset="40%" style="stop-color:#F0F0F0"/>
+      <stop offset="100%" style="stop-color:#E0E0E0"/>
+    </linearGradient>
+    <!-- Gold pen accent -->
+    <linearGradient id="penGold" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#FFE082"/>
+      <stop offset="50%" style="stop-color:#FFD700"/>
+      <stop offset="100%" style="stop-color:#FF8F00"/>
+    </linearGradient>
+    <!-- Clock gradient -->
+    <linearGradient id="clockGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFE082"/>
+      <stop offset="100%" style="stop-color:#FFA000"/>
+    </linearGradient>
+    <!-- Drop shadow filter -->
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#B8860B" flood-opacity="0.4"/>
+    </filter>
+    <filter id="softShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="2" dy="4" stdDeviation="6" flood-color="#00000033"/>
+    </filter>
+    <filter id="innerGlow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+    <!-- Green checkmark gradient -->
+    <linearGradient id="greenCheck" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#66BB6A"/>
+      <stop offset="100%" style="stop-color:#2E7D32"/>
+    </linearGradient>
+    <!-- Bottom reflection -->
+    <linearGradient id="reflection" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFD700;stop-opacity:0.3"/>
+      <stop offset="100%" style="stop-color:#FFD700;stop-opacity:0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Outer gold border - rounded square -->
+  <rect x="30" y="30" width="964" height="964" rx="200" ry="200" fill="url(#goldBorder)" filter="url(#shadow)"/>
+  <!-- Inner pearl background -->
+  <rect x="68" y="68" width="888" height="888" rx="168" ry="168" fill="url(#pearlBg)"/>
+  <!-- Subtle gold shimmer overlay -->
+  <rect x="68" y="68" width="888" height="888" rx="168" ry="168" fill="none" stroke="url(#goldBorder)" stroke-width="4" opacity="0.5"/>
+
+  <!-- ===== GOLD PERSON FIGURE (left side) ===== -->
+  <!-- Head (pearl) -->
+  <circle cx="240" cy="370" r="68" fill="url(#pearlHead)" filter="url(#softShadow)"/>
+  <!-- Head gold rim -->
+  <circle cx="240" cy="370" r="68" fill="none" stroke="#FFD700" stroke-width="4" opacity="0.6"/>
+  <!-- Body (gold) -->
+  <path d="M140 590 Q140 490 240 490 Q340 490 340 590 L340 650 Q340 670 320 670 L160 670 Q140 670 140 650 Z" fill="url(#goldPerson)" filter="url(#softShadow)"/>
+
+  <!-- ===== CHECKLIST PAPERS (layered, center) ===== -->
+  <!-- Back paper (shadow) -->
+  <rect x="330" y="295" width="360" height="430" rx="22" ry="22" fill="#E8E0D0" transform="rotate(-3, 510, 510)" filter="url(#softShadow)"/>
+  <!-- Middle paper -->
+  <rect x="338" y="288" width="360" height="430" rx="22" ry="22" fill="#F5F2EC" transform="rotate(-1, 518, 503)"/>
+  <!-- Front paper -->
+  <rect x="346" y="272" width="360" height="430" rx="22" ry="22" fill="url(#paperGrad)" stroke="#FFD700" stroke-width="3" filter="url(#softShadow)"/>
+
+  <!-- Checkbox row 1 -->
+  <!-- Checkbox border (gold) -->
+  <rect x="375" y="320" width="52" height="52" rx="8" fill="white" stroke="#E8C020" stroke-width="3"/>
+  <!-- Green checkmark 1 -->
+  <path d="M383 346 L393 358 L415 330" stroke="url(#greenCheck)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <!-- Line -->
+  <line x1="444" y1="346" x2="682" y2="346" stroke="#E8C020" stroke-width="6" stroke-linecap="round"/>
+
+  <!-- Checkbox row 2 -->
+  <rect x="375" y="402" width="52" height="52" rx="8" fill="white" stroke="#E8C020" stroke-width="3"/>
+  <path d="M383 428 L393 440 L415 412" stroke="url(#greenCheck)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <line x1="444" y1="428" x2="682" y2="428" stroke="#E8C020" stroke-width="6" stroke-linecap="round"/>
+
+  <!-- Checkbox row 3 -->
+  <rect x="375" y="484" width="52" height="52" rx="8" fill="white" stroke="#E8C020" stroke-width="3"/>
+  <path d="M383 510 L393 522 L415 494" stroke="url(#greenCheck)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <line x1="444" y1="510" x2="682" y2="510" stroke="#E8C020" stroke-width="6" stroke-linecap="round"/>
+
+  <!-- ===== CLOCK (top right) ===== -->
+  <circle cx="740" cy="310" r="110" fill="url(#clockGold)" filter="url(#softShadow)"/>
+  <circle cx="740" cy="310" r="88" fill="white"/>
+  <circle cx="740" cy="310" r="84" fill="none" stroke="#FFD700" stroke-width="3" opacity="0.5"/>
+  <!-- Clock tick marks -->
+  <line x1="740" y1="234" x2="740" y2="250" stroke="#FFD700" stroke-width="5" stroke-linecap="round"/>
+  <line x1="740" y1="370" x2="740" y2="386" stroke="#FFD700" stroke-width="5" stroke-linecap="round"/>
+  <line x1="656" y1="310" x2="672" y2="310" stroke="#FFD700" stroke-width="5" stroke-linecap="round"/>
+  <line x1="808" y1="310" x2="824" y2="310" stroke="#FFD700" stroke-width="5" stroke-linecap="round"/>
+  <!-- Hour hand (pointing ~10) -->
+  <line x1="740" y1="310" x2="710" y2="270" stroke="#FFD700" stroke-width="7" stroke-linecap="round"/>
+  <!-- Minute hand (pointing ~2) -->
+  <line x1="740" y1="310" x2="772" y2="258" stroke="#FFD700" stroke-width="5" stroke-linecap="round"/>
+  <!-- Center dot -->
+  <circle cx="740" cy="310" r="9" fill="#FFD700"/>
+
+  <!-- ===== PEN (diagonal, overlapping checklist) ===== -->
+  <!-- Pen body (white/pearl) - diagonal from top-right to bottom-left area -->
+  <g transform="rotate(-40, 640, 580)" filter="url(#softShadow)">
+    <!-- Pen barrel -->
+    <rect x="568" y="390" width="40" height="240" rx="20" fill="url(#penGrad)" stroke="#E0E0E0" stroke-width="1"/>
+    <!-- Gold band near top -->
+    <rect x="568" y="430" width="40" height="18" rx="0" fill="url(#penGold)"/>
+    <!-- Gold band near nib -->
+    <rect x="568" y="590" width="40" height="18" rx="0" fill="url(#penGold)"/>
+    <!-- Pen clip (gold) -->
+    <rect x="602" y="395" width="10" height="180" rx="5" fill="url(#penGold)" opacity="0.9"/>
+    <!-- Pen tip -->
+    <polygon points="568,630 608,630 588,680" fill="#FFD700"/>
+    <!-- Pen cap top -->
+    <rect x="568" y="390" width="40" height="45" rx="20" fill="white" stroke="#E0E0E0" stroke-width="1"/>
+    <!-- Highlight on pen -->
+    <rect x="573" y="400" width="10" height="210" rx="5" fill="white" opacity="0.6"/>
+  </g>
+
+  <!-- Bottom reflection/shine on icon -->
+  <rect x="68" y="700" width="888" height="256" rx="168" ry="168" fill="url(#reflection)" opacity="0.15"/>
+
+  <!-- Outer gold border highlight (top-left shine) -->
+  <path d="M228 68 Q68 68 68 228" fill="none" stroke="white" stroke-width="6" opacity="0.4" stroke-linecap="round"/>
+</svg>
