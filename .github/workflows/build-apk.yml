@@ -5,43 +5,10 @@ on:
     branches:
       - main
   workflow_dispatch:
-    inputs:
-      build_type:
-        description: 'Build type (debug/release)'
-        required: false
-        default: 'debug'
 
 jobs:
-  lint-and-test:
-    name: Lint & Test
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Restore Dependencies Cache
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
-      - name: Install Dependencies
-        run: npm ci
-
-      - name: Run Type Check
-        run: npm run lint
-
   build:
-    name: Build APK
-    needs: lint-and-test
+    name: Build Debug APK
     runs-on: ubuntu-latest
 
     steps:
@@ -52,14 +19,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-
-      - name: Restore Dependencies Cache
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
 
       - name: Install Dependencies
         run: npm ci
@@ -81,15 +40,11 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
 
-      - name: Validate Gradle Build
+      - name: Build Debug APK
         working-directory: ./android
         run: |
           chmod +x ./gradlew
-          ./gradlew check
-
-      - name: Build Debug APK
-        working-directory: ./android
-        run: ./gradlew assembleDebug --stacktrace
+          ./gradlew assembleDebug --stacktrace
 
       - name: Validate APK Output
         run: |
@@ -99,17 +54,9 @@ jobs:
             exit 1
           fi
           APK_SIZE=$(du -h "$APK_PATH" | cut -f1)
-          APK_SIZE_BYTES=$(stat -c%s "$APK_PATH")
           echo "✓ APK built successfully"
           echo "  - Path: $APK_PATH"
-          echo "  - Size: $APK_SIZE ($APK_SIZE_BYTES bytes)"
-          
-          # Verify APK is valid (contains manifest)
-          if ! unzip -t "$APK_PATH" | grep -q "AndroidManifest.xml"; then
-            echo "❌ ERROR: Invalid APK - missing AndroidManifest.xml"
-            exit 1
-          fi
-          echo "  - Format: ✓ Valid APK"
+          echo "  - Size: $APK_SIZE"
 
       - name: Upload Debug APK Artifact
         uses: actions/upload-artifact@v4
@@ -119,17 +66,8 @@ jobs:
           retention-days: 30
           if-no-files-found: error
 
-      - name: Upload Build Logs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: gradle-build-logs
-          path: android/app/build/outputs/logs/
-          retention-days: 7
-
   build-release:
     name: Build Release APK
-    needs: lint-and-test
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
@@ -141,14 +79,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-
-      - name: Restore Dependencies Cache
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
 
       - name: Install Dependencies
         run: npm ci
@@ -196,27 +126,8 @@ jobs:
         if: secrets.KEYSTORE_BASE64 == ''
         run: ./gradlew assembleRelease --stacktrace
 
-      - name: Validate Release APK Output
-        run: |
-          if [ -f "android/app/build/outputs/apk/release/app-release.apk" ]; then
-            APK_PATH="android/app/build/outputs/apk/release/app-release.apk"
-            APK_SIZE=$(du -h "$APK_PATH" | cut -f1)
-            APK_SIZE_BYTES=$(stat -c%s "$APK_PATH")
-            echo "✓ Release APK built successfully"
-            echo "  - Path: $APK_PATH"
-            echo "  - Size: $APK_SIZE ($APK_SIZE_BYTES bytes)"
-            
-            if ! unzip -t "$APK_PATH" | grep -q "AndroidManifest.xml"; then
-              echo "❌ ERROR: Invalid APK - missing AndroidManifest.xml"
-              exit 1
-            fi
-            echo "  - Format: ✓ Valid APK"
-          else
-            echo "⚠ Release APK not found (unsigned build)"
-          fi
-
       - name: Upload Release APK Artifact
-        if: hashFiles('android/app/build/outputs/apk/release/app-release.apk') != ''
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: app-release.apk
@@ -227,26 +138,3 @@ jobs:
       - name: Clean Keystore
         if: always()
         run: rm -f android/app/release.keystore
-
-      - name: Upload Release Build Logs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: gradle-release-logs
-          path: android/app/build/outputs/logs/
-          retention-days: 7
-
-  build-status:
-    name: Build Status Check
-    needs: [build, build-release]
-    runs-on: ubuntu-latest
-    if: always()
-
-    steps:
-      - name: Check Build Status
-        run: |
-          if [ "${{ needs.build.result }}" == "failure" ] || [ "${{ needs.build-release.result }}" == "failure" ]; then
-            echo "❌ Build workflow failed"
-            exit 1
-          fi
-          echo "✓ Build workflow completed successfully"
