@@ -17,9 +17,27 @@ android {
         }
     }
     buildTypes {
+        debug {
+            debuggable true
+            minifyEnabled false
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            
+            // Configure signing if properties are provided
+            signingConfig signingConfigs.release
+        }
+    }
+    
+    signingConfigs {
+        release {
+            if (System.getenv("android.injected.signing.store.file") != null) {
+                storeFile file(System.getenv("android.injected.signing.store.file"))
+                storePassword System.getenv("android.injected.signing.store.password")
+                keyAlias System.getenv("android.injected.signing.key.alias")
+                keyPassword System.getenv("android.injected.signing.key.password")
+            }
         }
     }
 }

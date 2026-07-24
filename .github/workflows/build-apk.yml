@@ -5,10 +5,15 @@ on:
     branches:
       - main
   workflow_dispatch:
+    inputs:
+      build_type:
+        description: 'Build type (debug/release)'
+        required: false
+        default: 'debug'
 
 jobs:
-  build:
-    name: Build APK
+  lint-and-test:
+    name: Lint & Test
     runs-on: ubuntu-latest
 
     steps:
@@ -20,11 +25,49 @@ jobs:
         with:
           node-version: 22
 
+      - name: Restore Dependencies Cache
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
       - name: Install Dependencies
-        run: npm ci || npm install
+        run: npm ci
+
+      - name: Run Type Check
+        run: npm run lint
+
+  build:
+    name: Build APK
+    needs: lint-and-test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Restore Dependencies Cache
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install Dependencies
+        run: npm ci
 
       - name: Build Web App
         run: npm run build
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL || 'https://api.example.com' }}
 
       - name: Sync Capacitor Android
         run: npx cap sync android
@@ -38,12 +81,172 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
 
+      - name: Validate Gradle Build
+        working-directory: ./android
+        run: |
+          chmod +x ./gradlew
+          ./gradlew check
+
       - name: Build Debug APK
         working-directory: ./android
-        run: chmod +x ./gradlew && ./gradlew assembleDebug
+        run: ./gradlew assembleDebug --stacktrace
 
-      - name: Upload APK Artifact
+      - name: Validate APK Output
+        run: |
+          APK_PATH="android/app/build/outputs/apk/debug/app-debug.apk"
+          if [ ! -f "$APK_PATH" ]; then
+            echo "❌ ERROR: APK not found at $APK_PATH"
+            exit 1
+          fi
+          APK_SIZE=$(du -h "$APK_PATH" | cut -f1)
+          APK_SIZE_BYTES=$(stat -c%s "$APK_PATH")
+          echo "✓ APK built successfully"
+          echo "  - Path: $APK_PATH"
+          echo "  - Size: $APK_SIZE ($APK_SIZE_BYTES bytes)"
+          
+          # Verify APK is valid (contains manifest)
+          if ! unzip -t "$APK_PATH" | grep -q "AndroidManifest.xml"; then
+            echo "❌ ERROR: Invalid APK - missing AndroidManifest.xml"
+            exit 1
+          fi
+          echo "  - Format: ✓ Valid APK"
+
+      - name: Upload Debug APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-debug.apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Upload Build Logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gradle-build-logs
+          path: android/app/build/outputs/logs/
+          retention-days: 7
+
+  build-release:
+    name: Build Release APK
+    needs: lint-and-test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Restore Dependencies Cache
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build Web App for Release
+        run: npm run build
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL || 'https://api.example.com' }}
+
+      - name: Sync Capacitor Android
+        run: npx cap sync android
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Decode Keystore
+        if: secrets.KEYSTORE_BASE64 != ''
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android/app/release.keystore
+          echo "Keystore decoded successfully"
+
+      - name: Build Release APK
+        working-directory: ./android
+        if: secrets.KEYSTORE_BASE64 != ''
+        run: |
+          ./gradlew assembleRelease \
+            -Pandroid.injected.signing.store.file=../android/app/release.keystore \
+            -Pandroid.injected.signing.store.password="${{ secrets.KEYSTORE_PASSWORD }}" \
+            -Pandroid.injected.signing.key.alias="${{ secrets.KEY_ALIAS }}" \
+            -Pandroid.injected.signing.key.password="${{ secrets.KEY_PASSWORD }}" \
+            --stacktrace
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+
+      - name: Build Unsigned Release APK
+        working-directory: ./android
+        if: secrets.KEYSTORE_BASE64 == ''
+        run: ./gradlew assembleRelease --stacktrace
+
+      - name: Validate Release APK Output
+        run: |
+          if [ -f "android/app/build/outputs/apk/release/app-release.apk" ]; then
+            APK_PATH="android/app/build/outputs/apk/release/app-release.apk"
+            APK_SIZE=$(du -h "$APK_PATH" | cut -f1)
+            APK_SIZE_BYTES=$(stat -c%s "$APK_PATH")
+            echo "✓ Release APK built successfully"
+            echo "  - Path: $APK_PATH"
+            echo "  - Size: $APK_SIZE ($APK_SIZE_BYTES bytes)"
+            
+            if ! unzip -t "$APK_PATH" | grep -q "AndroidManifest.xml"; then
+              echo "❌ ERROR: Invalid APK - missing AndroidManifest.xml"
+              exit 1
+            fi
+            echo "  - Format: ✓ Valid APK"
+          else
+            echo "⚠ Release APK not found (unsigned build)"
+          fi
+
+      - name: Upload Release APK Artifact
+        if: hashFiles('android/app/build/outputs/apk/release/app-release.apk') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release.apk
+          path: android/app/build/outputs/apk/release/app-release.apk
+          retention-days: 90
+          if-no-files-found: warn
+
+      - name: Clean Keystore
+        if: always()
+        run: rm -f android/app/release.keystore
+
+      - name: Upload Release Build Logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gradle-release-logs
+          path: android/app/build/outputs/logs/
+          retention-days: 7
+
+  build-status:
+    name: Build Status Check
+    needs: [build, build-release]
+    runs-on: ubuntu-latest
+    if: always()
+
+    steps:
+      - name: Check Build Status
+        run: |
+          if [ "${{ needs.build.result }}" == "failure" ] || [ "${{ needs.build-release.result }}" == "failure" ]; then
+            echo "❌ Build workflow failed"
+            exit 1
+          fi
+          echo "✓ Build workflow completed successfully"
